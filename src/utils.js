@@ -85,20 +85,25 @@ export function setupRegularCell(cell) {
   if (cell.id && cell.id.name) name = cell.id.name;
   else if (cell.id && cell.id.id && cell.id.id.name) name = cell.id.id.name;
   let bodyText = cell.input.substring(cell.body.start, cell.body.end);
-  let $count = 0;
   let expressionMap = {};
+  let references = [];
   const cellReferences = Array.from(new Set((cell.references || []).map(ref => {
     if (ref.type === "ViewExpression") {
       if (expressionMap[ref.id.name] === undefined) {
-        expressionMap[ref.id.name] = `$${$count++}`;
+        expressionMap[ref.id.name] = ref.id.name;
+        references.push(ref.id.name);
       }
       return "viewof " + ref.id.name;
     } else if (ref.type === "MutableExpression") {
       if (expressionMap[ref.id.name] === undefined) {
-        expressionMap[ref.id.name] = `$${$count++}`;
+        expressionMap[ref.id.name] = ref.id.name;
+        references.push(ref.id.name);
       }
       return "mutable " + ref.id.name;
-    } else return ref.name;
+    } else {
+      references.push(ref.name);
+      return ref.name;
+    }
   })));
   const uniq = (lst) => {
     const result = [];
@@ -110,10 +115,6 @@ export function setupRegularCell(cell) {
     }
     return result;
   }
-  const plainReferences = uniq(cell.references.filter(ref =>
-    ref.type !== "ViewExpression" && ref.type !== "MutableExpression"
-    ).map(x => x.name));
-  const references = [...Object.values(expressionMap), ...plainReferences];
   const patches = [];
   let latestPatch = { newStr: "", span: [cell.body.start, cell.body.start] };
   full(cell.body, node => {
@@ -135,13 +136,10 @@ export function setupRegularCell(cell) {
   patches.push({newStr: cell.input.substring(latestPatch.span[1], cell.body.end), span: [latestPatch.span[1], cell.body.end]});
   bodyText = patches.map(x => x.newStr).join("");
 
-  console.log(references);
-  console.log(Array.from(new Set(references))); 
-
   return {
     cellName: name,
-    references, // : Array.from(new Set(references)),
+    references: uniq(references),
     bodyText,
-    cellReferences: Array.from(new Set(cellReferences))
+    cellReferences: uniq(cellReferences)
   };
 }
