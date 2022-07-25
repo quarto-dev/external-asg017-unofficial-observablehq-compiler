@@ -100,9 +100,19 @@ export function setupRegularCell(cell) {
       return "mutable " + ref.id.name;
     } else return ref.name;
   })));
-  const plainReferences = cell.references.filter(ref =>
+  const uniq = (lst) => {
+    const result = [];
+    const s = new Set();
+    for (const v of lst) {
+      if (s.has(v)) continue;
+      s.add(v);
+      result.add(v);
+    }
+    return result;
+  }
+  const plainReferences = uniq(cell.references.filter(ref =>
     ref.type !== "ViewExpression" && ref.type !== "MutableExpression"
-    ).map(x => x.name);
+    ).map(x => x.name));
   const references = [...Object.values(expressionMap), ...plainReferences];
   const patches = [];
   let latestPatch = { newStr: "", span: [cell.body.start, cell.body.start] };
