@@ -1,9 +1,9 @@
 {
   "name": "@quarto/external-alex-garcia-unofficial-observablehq-compiler",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A fork of an unofficial compiler to bind @observablehq/parser and @observablehq/runtime",
   "main": "dist/index.js",
-  "author": "Alex Garcia <alexsebastian.garcia@gmail.com>",
+  "author": "Carlos Scheidegger <carlos.scheidegger@rstudio.com>",
   "repository": {
     "type": "git",
     "url": "https://github.com/quarto-dev/external-asg017-unofficial-observablehq-compiler.git"
