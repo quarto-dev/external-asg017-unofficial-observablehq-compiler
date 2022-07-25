@@ -106,7 +106,7 @@ export function setupRegularCell(cell) {
     for (const v of lst) {
       if (s.has(v)) continue;
       s.add(v);
-      result.add(v);
+      result.push(v);
     }
     return result;
   }
