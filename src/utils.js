@@ -103,7 +103,7 @@ export function setupRegularCell(cell) {
   const plainReferences = cell.references.filter(ref =>
     ref.type !== "ViewExpression" && ref.type !== "MutableExpression"
     ).map(x => x.name);
-  const references = [...plainReferences, ...Object.values(expressionMap)];
+  const references = [...Object.values(expressionMap), ...plainReferences];
   const patches = [];
   let latestPatch = { newStr: "", span: [cell.body.start, cell.body.start] };
   full(cell.body, node => {
@@ -112,20 +112,25 @@ export function setupRegularCell(cell) {
       if (node.start !== latestPatch.span[1]) {
         patches.push({ newStr: cell.input.substring(latestPatch.span[1], node.start)});
       }
+      const suffix = node.type === "MutableExpression" ? ".value" : "";
+      const newStr = `${expressionMap[node.id.name]}${suffix}`;
       const patch = {
-        newStr: expressionMap[node.id.name],
+        newStr,
         span: [node.start, node.end]
       };
-      latestPatch = patch
+      latestPatch = patch;
       patches.push(patch);
     }
   }, walk);
   patches.push({newStr: cell.input.substring(latestPatch.span[1], cell.body.end), span: [latestPatch.span[1], cell.body.end]});
   bodyText = patches.map(x => x.newStr).join("");
 
+  console.log(references);
+  console.log(Array.from(new Set(references))); 
+
   return {
     cellName: name,
-    references: Array.from(new Set(references)),
+    references, // : Array.from(new Set(references)),
     bodyText,
     cellReferences: Array.from(new Set(cellReferences))
   };
